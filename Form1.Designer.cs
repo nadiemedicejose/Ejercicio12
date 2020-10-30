@@ -42,6 +42,9 @@
             this.Whiteboard.TabStop = false;
             this.Whiteboard.Click += new System.EventHandler(this.Whiteboard_Click);
             this.Whiteboard.Paint += new System.Windows.Forms.PaintEventHandler(this.Whiteboard_Paint);
+            this.Whiteboard.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Whiteboard_MouseDown);
+            this.Whiteboard.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Whiteboard_MouseMove);
+            this.Whiteboard.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Whiteboard_MouseUp);
             // 
             // Form1
             // 

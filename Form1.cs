@@ -26,6 +26,15 @@ namespace Ejercicio12
 
         Point3DF[] puntos = new Point3DF[8];
 
+        // ROTACION
+        // Variables que determinan los ángulos en los cuales voy a rotar X y Y
+        int angle_x = 0;
+        int angle_y = 0;
+        // Punto para saber en qué posición se encuentra el mouse para empezar a rotar
+        Point posMouse;
+        // Variable para determinar si se está moviendo o no el objeto
+        bool movimiento;
+
         private void Whiteboard_Click(object sender, EventArgs e)
         {
 
@@ -61,6 +70,11 @@ namespace Ejercicio12
                 // Dibujar los puntos del cubo
                 g.FillEllipse(new SolidBrush(Color.Yellow), new RectangleF(p, new SizeF(5F, 5F)));
             }
+            // Dibujar las líneas del eje X, Y y Z
+            Pen pluma2 = new Pen(Color.LightPink, 2);
+            g3.DrawLine3D(pluma2, -800, 0, 0, 800, 0, 0); // Eje X
+            g3.DrawLine3D(pluma2, 0, -400, 0, 0, 400, 0); // Eje Y
+            g3.DrawLine3D(pluma2, 0, 0, -600, 0, 0, 600); // Eje Z
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -74,6 +88,9 @@ namespace Ejercicio12
             puntos[5] = new Point3DF(50, -50, 50);
             puntos[6] = new Point3DF(50, 50, 50);
             puntos[7] = new Point3DF(50, 50, -50);
+
+            // Determinar el punto donde se encuentra el mouse al momento de rotar
+            posMouse = new Point(0, 0);
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
@@ -229,5 +246,73 @@ namespace Ejercicio12
             Whiteboard.Refresh();
         }
 
+        private void Whiteboard_MouseDown(object sender, MouseEventArgs e)
+        {
+            // Guardar puntos en los que se mueve el mouse
+            posMouse = e.Location;
+            // Accionar la variable de movimiento
+            movimiento = true;
+        }
+
+        private void Whiteboard_MouseMove(object sender, MouseEventArgs e)
+        {
+            // Se activa cuando el mouse está en movimiento sobre la pantalla
+            if (movimiento)
+            {
+                // Determino en qué ángulo me encuetro en X y Y
+                angle_x = e.Location.X + posMouse.X;
+                angle_y = e.Location.Y + posMouse.Y;
+
+                if (angle_x > 0)
+                {
+                    angle_x = 1; // Rotando hacia la derecha
+                } else if (angle_x < 0)
+                {
+                    angle_x = -1; // Rotando hacia la izq
+                }
+
+                if (angle_y > 0)
+                {
+                    angle_y = -1; // Rotando hacia abajo
+                } else if (angle_y < 0)
+                {
+                    angle_y = 1; // rotando hacia arriba
+                }
+
+                puntos = Rotar(puntos, angle_x, angle_y);
+                Whiteboard.Refresh();
+            }
+        }
+
+        private void Whiteboard_MouseUp(object sender, MouseEventArgs e)
+        {
+            // Confirmar que ya no hay movimiento del mouse
+            movimiento = false;
+        }
+
+        // Método que activa la Rotación del Objeto
+        private Point3DF[] Rotar(Point3DF[] puntitos, double AnguloX, double AnguloY)
+        {
+            // Variable auxiliar que determina la rotación
+            Point3DF aux = new Point3DF();
+            // Convertir de grados a radianes
+            double gradosX = (AnguloX * Math.PI) / 180;
+            double gradosY = (AnguloY * Math.PI) / 180;
+
+            // Recorremos todos los puntos para hacer la rotación
+            for (int i = 0; i < puntos.Length; i++)
+            {
+                // Rotar eje Y
+                aux.X = Convert.ToSingle(puntitos[i].X * Math.Cos(gradosX) - puntitos[i].Z * Math.Sin(gradosX));
+                aux.Y = puntitos[i].Y;
+                aux.Z = Convert.ToSingle(puntitos[i].Z * Math.Cos(gradosX) + puntitos[i].X * Math.Sin(gradosX));
+                // Rotar eje X
+                puntitos[i].X = aux.X;
+                puntitos[i].Y = Convert.ToSingle(aux.Y * Math.Cos(gradosY) - aux.Z * Math.Sin(gradosY));
+                puntitos[i].Z = Convert.ToSingle(aux.Z * Math.Cos(gradosY) + aux.Y * Math.Sin(gradosY));
+            }
+
+            return puntitos;
+        }
     }
 }
